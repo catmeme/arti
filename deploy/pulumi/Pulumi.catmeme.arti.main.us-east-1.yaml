@@ -1,0 +1,7 @@
+encryptionsalt: v1:bizuZ7E2T68=:v1:MmtcwcYUnl1UlSZV:qxLP+SjdYG9+YPpsLofIAZT10P9H1w==
+config:
+  arti:logLevel: DEBUG
+  arti:openAiApiKeySecretName: /catmeme/cloud-platform/sandbox/arti/access-token/openai
+  arti:slackBotTokenSecretName: /catmeme/cloud-platform/sandbox/arti/access-token/slack
+  aws:profile: main-deployment
+  aws:region: us-east-1

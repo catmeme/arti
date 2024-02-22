@@ -1,0 +1,12 @@
+name: arti
+description: A serverless slack bot service using Embedchain deployed to AWS Lambda using Pulumi.
+main: deploy/pulumi
+stackConfigDir: deploy/pulumi
+runtime:
+  name: python
+  options:
+    virtualenv: venv
+config:
+  arti:apiBasePath: ai
+  arti:appName: arti-ai
+  arti:lambdaExecutionTimeout: 30

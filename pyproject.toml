@@ -1,0 +1,69 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "arti"
+description = "A serverless slack bot service using Embedchain deployed to AWS Lambda using Pulumi."
+readme = { file = "README.md", content-type = "text/markdown" }
+keywords = ["ai","python","service"]
+urls = { repository = "https://github.com/catmeme/arti" }
+authors = [{name = "Tyler Mulligan", email = "z@xnz.me"}]
+license = { text = "Copyright (c) 2024 catmeme - all rights reserved" }
+classifiers = [
+    "Environment :: Console",
+    "License :: Other/Proprietary License",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+]
+dynamic = ["version"]
+
+[project.scripts]
+arti = "arti_ai.__main__:main"
+
+[tool.setuptools.dynamic]
+version = {attr = "arti_ai.__version__" }
+
+[tool.bandit]
+exclude_dirs = ["/.eggs/", "/.idea/", "/.pytest_cache/", "/.tox/", "/.vscode/", "/archived/", "/build/", "/dist/", "/tests/", "/venv/"]
+
+[tool.black]
+line-length = 120
+
+[tool.coverage.report]
+exclude_lines = ["if __name__ == .__main__.:"]
+omit = ["tests/*"]
+
+[tool.coverage.run]
+omit = ["tests/*"]
+
+[tool.mypy]
+check_untyped_defs = true
+disallow_any_explicit = true
+exclude = '^(archived|bin|dist|venv)/'
+pretty = true
+warn_return_any = true
+warn_unused_configs = true
+
+[tool.pylint.main]
+max-args = 6
+max-line-length = 120
+recursive = "yes"
+ignore = [".git", "archived", "dist", "venv"]
+
+[tool.pylint."MESSAGES CONTROL"]
+disable = []
+enable = "useless-suppression"
+
+[tool.pylint.REFACTORING]
+max-nested-blocks = 3
+
+[tool.pylint.STRING]
+check-quote-consistency = "yes"
+
+[tool.pytest.ini_options]
+env_files = ["tests/.tests.env"]
+python_classes = ["Test*"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+testpaths = ["tests"]

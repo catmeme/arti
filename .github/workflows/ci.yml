@@ -1,0 +1,39 @@
+name: Continuous Integration
+
+on:
+  pull_request:
+    branches:
+      - develop
+      - master
+  push:
+    branches:
+      - develop
+
+jobs:
+  ci:
+    if: github.head_ref != 'master'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install
+        run: make develop
+
+      - name: Lint
+        run: |
+          make lint
+          make format-check
+
+      - name: Test
+        run: make test
+
+      - name: Audit
+        run: |
+          make security-cve
+          make security-ast

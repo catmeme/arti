@@ -1,0 +1,71 @@
+# .editorconfig
+
+# top-most EditorConfig file
+root = true
+
+# All Files
+[*]
+end_of_line = lf
+insert_final_newline = true
+
+# Dockerfiles
+[*.dockerfile]
+charset = utf-8
+indent_style = space
+indent_size = 2
+trim_trailing_whitespace = true
+
+# CSS and HTML Development
+[*.{css,html}]
+charset = utf-8
+indent_style = space
+indent_size = 2
+trim_trailing_whitespace = true
+
+# JavaScript and JSON Development
+[*.{js,json,ts}]
+charset = utf-8
+indent_style = space
+indent_size = 2
+trim_trailing_whitespace = true
+
+# Markdown
+[*.{md,mkdn,markdown}]
+charset = utf-8
+indent_style = space
+indent_size = 4
+max_line_length = off
+trim_trailing_whitespace = false
+
+# Makefile Development
+[Makefile]
+indent_style = tab
+
+# PHP Development
+[*.php]
+charset = utf-8
+indent_style = space
+indent_size = 4
+trim_trailing_whitespace = true
+
+# Python Development
+[*.py]
+charset = utf-8
+indent_style = space
+indent_size = 4
+trim_trailing_whitespace = true
+
+# Text Plain
+[*.txt]
+charset = utf-8
+indent_style = space
+indent_size = 2
+trim_trailing_whitespace = true
+
+# YML
+[*.{yml,yaml}]
+charset = utf-8
+indent_style = space
+indent_size = 2
+trim_trailing_whitespace = true
+

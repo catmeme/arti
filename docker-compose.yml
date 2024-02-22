@@ -1,0 +1,12 @@
+version: "3.8"
+
+services:
+  arti:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      target: development
+    env_file: .env
+    volumes:
+      - ./assets:/app/assets
+      - ./src:/app/src
