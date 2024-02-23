@@ -2,7 +2,9 @@
 
 # Arti
 
-A serverless Slack bot service using Embedchain deployed to AWS Lambda using Pulumi.
+A serverless AI Slack bot service using Embedchain deployed to AWS Lambda using Pulumi.
+
+![Ask arti about your documents](docs/images/arti-slack.png)
 
 Load and interrogate your data using an Artificial Intelligence [RAG](https://aws.amazon.com/what-is/retrieval-augmented-generation/) microservice built on [Embedchain](https://github.com/embedchain/embedchain), providing CLI, REST API and Slack interfaces, with an option to deploy to AWS Lambda using [Pulumi](https://pulumi.com/).
 
