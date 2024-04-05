@@ -10,7 +10,7 @@ Load and interrogate your data using an Artificial Intelligence [RAG](https://aw
 
 Optional configuration for various [data sources](https://docs.embedchain.ai/components/data-sources/overview), [LLMs](https://docs.embedchain.ai/components/llms), [vector databases](https://docs.embedchain.ai/components/vector-databases), [embedding models](https://docs.embedchain.ai/components/embedding-models), and [evaluation](https://docs.embedchain.ai/components/evaluation).
 
-![Slackbot Pulumi architecture](./docs/images/arti-architecture.png)
+![Slackbot Pulumi architecture](./docs/images/arti-architecture-blog-2.png)
 
 ## Usage
 
@@ -64,15 +64,17 @@ Configuration is found in environment variables, documented in the table below.
     cp sample.env .env
     ```
 
-   | Variable                            | Description                                                        |
-   |-------------------------------------|--------------------------------------------------------------------|
-   | `AWS_REGION`                        | AWS region                                                         |
-   | `OPENAI_API_KEY`                    | OpenAI Key (takes precedence over secret)                          |
-   | `OPENAI_API_KEY_SECRET_NAME`        | OpenAI Key secret name                                             |
-   | `SLACK_BOT_TOKEN`                   | Slack bot token (takes precedence over secret)                     |
-   | `SLACK_BOT_TOKEN_SECRET_NAME`       | Slack bot token secret name                                        |
-   | `SLACK_BOT_SIGNING_SECRET`          | Slack bot signing secret                                           |
-   | `LOG_LEVEL`                         | Log level                                                          |
+   | Variable                       | Description                                        |
+   |--------------------------------|----------------------------------------------------|
+   | `AWS_REGION`                   | AWS region                                         |
+   | `OPENAI_API_KEY`               | OpenAI Key (takes precedence over secret)          |
+   | `OPENAI_API_KEY_SECRET_NAME`   | OpenAI Key secret name                             |
+   | `PINECONE_API_KEY`             | Pinecone Key secret (takes precedence over secret) |
+   | `PINECONE_API_KEY_SECRET_NAME` | Pinecone Key secret name                           |
+   | `SLACK_BOT_TOKEN`              | Slack bot token (takes precedence over secret)     |
+   | `SLACK_BOT_TOKEN_SECRET_NAME`  | Slack bot token secret name                        |
+   | `SLACK_BOT_SIGNING_SECRET`     | Slack bot signing secret                           |
+   | `LOG_LEVEL`                    | Log level                                          |
 
 2. Create a Python virtual environment and activate it (first run only)
 
@@ -165,7 +167,18 @@ make help
 
 ## Deployment
 
-Deployment happens through the [Makefile](Makefile) for convenience.  The stack configuration can be found in [deploy/pulumi].
+Deployment happens through the [Makefile](Makefile) for convenience.  The stack configuration can be found in [deploy/pulumi](deploy/pulumi).
+
+### Prerequisites
+
+Create the following keys in Secrets Manager.  These names are configurable in `deploy/pulumi/Pulumi.<stack>.yaml`.  Slack and Pinecone are only necessary if they are configured for use.
+
+| Secret Name                                               | Schema                                  |
+|-----------------------------------------------------------|-----------------------------------------|
+| catmeme/cloud-platform/sandbox/arti/access-token/openai   | `{ "apiKey": "" }`                      |
+| catmeme/cloud-platform/sandbox/arti/access-token/pinecone | `{ "apiKey": "" }`                      |
+| catmeme/cloud-platform/sandbox/arti/access-token/slack    | `{ "apiKey": "", "signingSecret": "" }` |
+|                                                           |                                         |
 
 Ensure you have a matching AWS profile name to the one in the stack.  The Makefile assumes `<environment>-deployment` 
 

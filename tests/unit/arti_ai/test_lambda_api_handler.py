@@ -6,8 +6,8 @@ import unittest
 from unittest.mock import patch
 
 
-class TestLambdaHandler(unittest.TestCase):
-    """AWS Lambda handler tests for Slack events and URL verification."""
+class TestLambdaApiHandler(unittest.TestCase):
+    """AWS Lambda API handler tests for Slack events and URL verification."""
 
     @patch("slack_bolt.adapter.aws_lambda.SlackRequestHandler")
     @patch("slack_sdk.WebClient")
@@ -22,7 +22,7 @@ class TestLambdaHandler(unittest.TestCase):
         }
 
         # pylint: disable=import-outside-toplevel
-        from arti_ai.lambda_handler import handler
+        from arti_ai.lambda_api_handler import handler
 
         # pylint: enable=import-outside-toplevel
 
@@ -33,12 +33,12 @@ class TestLambdaHandler(unittest.TestCase):
         self.assertEqual(response["statusCode"], 200)
         self.assertIn("OK", json.loads(response["body"])["data"]["text"])
 
-    @patch("arti_ai.lambda_handler.app.logger.info")
-    @patch("arti_ai.lambda_handler.app.logger.debug")
+    @patch("arti_ai.lambda_api_handler.app.logger.info")
+    @patch("arti_ai.lambda_api_handler.app.logger.debug")
     def test_url_verification(self, mock_debug, mock_info):
         """Test handling of a URL verification event."""
         # pylint: disable=import-outside-toplevel
-        from arti_ai.lambda_handler import handler
+        from arti_ai.lambda_api_handler import handler
 
         # pylint: enable=import-outside-toplevel
 

@@ -1,0 +1,24 @@
+app:
+  config:
+    id: arti
+    collect_metrics: False
+    log_level: INFO
+llm:
+  provider: openai
+  config:
+    model: 'gpt-3.5-turbo-1106'
+    temperature: 0.5
+    max_tokens: 1000
+    top_p: 1
+embedder:
+  provider: openai
+chunker:
+  chunk_size: 2000
+  chunk_overlap: 0
+  length_function: len
+vectordb:
+  provider: chroma
+  config:
+    collection_name: arti-ai
+    dir: /tmp/db
+    allow_reset: True

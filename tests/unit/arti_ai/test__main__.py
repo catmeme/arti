@@ -43,10 +43,32 @@ class TestCLIEntrypoint(unittest.TestCase):
 
         mock_handle_ask.assert_called_once_with(test_question)
 
+    @patch("arti_ai.__main__.load_data")
     @patch("argparse.ArgumentParser.parse_args")
-    def test_main_not_ask_command(self, mock_parse_args):
+    def test_main_load_command(self, mock_parse_args, mock_load_data):
+        """Test the main function with the 'load' command."""
+        mock_parse_args.return_value = argparse.Namespace(command="load")
+        mock_load_data.return_value = None  # Adjust based on the actual behavior of load_data
+
+        main()
+
+        mock_load_data.assert_called_once()
+
+    @patch("arti_ai.__main__.reset_data")
+    @patch("argparse.ArgumentParser.parse_args")
+    def test_main_reset_command(self, mock_parse_args, mock_reset_data):
+        """Test the main function with the 'reset' command."""
+        mock_parse_args.return_value = argparse.Namespace(command="reset")
+        mock_reset_data.return_value = None  # Adjust based on the actual behavior of reset_data
+
+        main()
+
+        mock_reset_data.assert_called_once()
+
+    @patch("argparse.ArgumentParser.parse_args")
+    def test_main_not_command(self, mock_parse_args):
         """Test the main function with a command other than ask."""
-        mock_parse_args.return_value = argparse.Namespace(command="not-ask")
+        mock_parse_args.return_value = argparse.Namespace(command="not-a-command")
 
         main()
 

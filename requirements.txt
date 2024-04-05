@@ -1,5 +1,8 @@
 boto3
 botocore
-embedchain[poe,slack]
+embedchain[pinecone]
+openai==1.12.0
+pinecone-client
+pinecone-text
 python-dotenv
 slack-bolt

@@ -1,6 +1,7 @@
 FROM python:3.10-slim AS development
 
 ARG APP_DIR="/app"
+ENV PATH="${APP_DIR}/venv/bin:${PATH}"
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
@@ -13,7 +14,7 @@ COPY requirements.txt ${APP_DIR}/
 RUN pip install --upgrade pip setuptools wheel
 
 COPY .gitignore Makefile README.md entrypoint.sh pyproject.toml requirements-dev.txt ./
-COPY assets assets
+COPY config config
 COPY src src
 
 RUN python -m venv venv \
@@ -27,6 +28,8 @@ CMD ["--help"]
 FROM python:3.10-slim AS production
 
 ARG APP_DIR="/app"
+ARG LAMBDA_HANDLER="arti_ai.lambda_api_handler.handler"
+ENV LAMBDA_HANDLER=${LAMBDA_HANDLER}
 
 WORKDIR ${APP_DIR}
 
@@ -38,5 +41,4 @@ RUN sed -i 's#HOME_DIR = str(Path.home())#HOME_DIR = "/tmp"#g' \
     && sed -i 's#HOME_DIR = str(Path.home())#HOME_DIR = "/tmp"#g' \
         /app/venv/lib/python3.10/site-packages/embedchain/telemetry/posthog.py
 
-ENTRYPOINT [ "/app/venv/bin/python", "-m", "awslambdaric" ]
-CMD [ "arti_ai.lambda_handler.handler" ]
+ENTRYPOINT ["sh", "entrypoint.sh"]

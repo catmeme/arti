@@ -11,6 +11,7 @@ flake8-simplify
 mccabe
 mypy
 pep8-naming
+pinecone_pulumi
 pip-audit
 pulumi
 pulumi-aws
@@ -19,6 +20,8 @@ pylint
 pytest
 pytest-cov
 pytest-dotenv
+types-PyYAML
+types-boto3
 types-toml
 types-urllib3
 watchdog[watchmedo]
