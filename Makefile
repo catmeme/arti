@@ -77,12 +77,12 @@ clean-output:
 .PHONY: clean-output
 
 # Deploy application to target environment
-deploy: _pulumi-stack-init
+deploy: _pulumi-stack-init _pinecone-api-key
 	@$(PULUMI_CMD) -s $(PULUMI_STACK_NAME) up --skip-preview -y
 .PHONY: deploy
 
 # Preview changes before deployment
-deploy-preview: _pulumi-stack-init
+deploy-preview: _pulumi-stack-init _pinecone-api-key
 	@POLICY_PACKS_FLAGS=; \
 	if [ -d $(PULUMI_POLICY_PACKS_DIR) ]; \
 		then POLICY_PACKS_FLAGS=$$(find $(PULUMI_POLICY_PACKS_DIR) -name policy-config.json | awk -F "/" '{ print " --policy-pack "$$1"/"$$2" --policy-pack-config "$$1"/"$$2"/"$$3 }'); \
@@ -165,6 +165,14 @@ _check-env-phony:
 _check-env-%: _check-env-phony
 	@if [ -z "$($(*))" ]; then echo "Required environment variable '$*' is not set"; exit 1; fi
 .PHONY: _check-env-phony
+
+# Ensure Pinecone API key is in environment
+_pinecone-api-key:
+ifndef PINECONE_API_KEY
+PINECONE_API_KEY := $(shell grep -oP '(?<=PINECONE_API_KEY=).*' .env)
+export PINECONE_API_KEY
+endif
+.PHONY: _pinecone-api-key
 
 # Create Pulumi stack if it doesn't exist
 _pulumi-stack-init: _check-env-AWS_ACCOUNT_ID _check-env-PULUMI_BACKEND_URL

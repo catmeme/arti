@@ -1,0 +1,25 @@
+app:
+  config:
+    id: private-arti
+    collect_metrics: false
+    log_level: INFO
+llm:
+  provider: gpt4all
+  config:
+    model: 'orca-mini-3b-gguf2-q4_0.gguf'
+    max_tokens: 1000
+    top_p: 1
+embedder:
+  provider: huggingface
+  config:
+    model: 'sentence-transformers/all-MiniLM-L6-v2'
+chunker:
+  chunk_size: 2000
+  chunk_overlap: 0
+  length_function: len
+vectordb:
+  provider: chroma
+  config:
+    collection_name: private-arti-ai
+    dir: /tmp/db
+    allow_reset: true

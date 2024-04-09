@@ -67,3 +67,5 @@ python_classes = ["Test*"]
 python_files = ["test_*.py"]
 python_functions = ["test_*"]
 testpaths = ["tests"]
+log_cli = true
+#log_cli_level = "DEBUG"

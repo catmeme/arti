@@ -3,4 +3,8 @@ set -e
 
 . /app/venv/bin/activate
 
-arti $@
+if [ -n "$LAMBDA_HANDLER" ]; then
+    /app/venv/bin/python -m awslambdaric $LAMBDA_HANDLER
+else
+    arti "$@"
+fi
