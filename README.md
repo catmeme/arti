@@ -4,13 +4,13 @@
 
 A serverless AI Slack bot service using Embedchain deployed to AWS Lambda using Pulumi.
 
-![Ask arti about your documents](docs/images/arti-slack.png)
+![Ask arti about your documents](docs/images/arti-leslie-example.png)
 
 Load and interrogate your data using an Artificial Intelligence [RAG](https://aws.amazon.com/what-is/retrieval-augmented-generation/) microservice built on [Embedchain](https://github.com/embedchain/embedchain), providing CLI, REST API and Slack interfaces, with an option to deploy to AWS Lambda using [Pulumi](https://pulumi.com/).
 
 Optional configuration for various [data sources](https://docs.embedchain.ai/components/data-sources/overview), [LLMs](https://docs.embedchain.ai/components/llms), [vector databases](https://docs.embedchain.ai/components/vector-databases), [embedding models](https://docs.embedchain.ai/components/embedding-models), and [evaluation](https://docs.embedchain.ai/components/evaluation).
 
-![Slackbot Pulumi architecture](./docs/images/arti-architecture-blog-2.png)
+![Slackbot Pulumi architecture](docs/images/arti-architecture-blog-3.png)
 
 ## Usage
 
@@ -144,6 +144,20 @@ For reference, these are approximately the expected scopes, depending on your us
 * `message.channels`
 * `message.im`
 
+### Features
+
+#### Real-time data-loading into the vector database via an S3 file upload bridge
+
+![realtime-slack-s3.png](docs/images/realtime-slack-s3.png)
+
+#### Model configuration
+
+![smarti-modal.png](docs/images/smarti-modal.png)
+
+#### Citations
+
+![arti-citations.png](docs/images/arti-citations.png)
+
 ## CLI
 
 A cli entrypoint is added as an example.  By default, the `assets` directory will be loaded into the vector database for search.
@@ -173,12 +187,12 @@ Deployment happens through the [Makefile](Makefile) for convenience.  The stack 
 
 Create the following keys in Secrets Manager.  These names are configurable in `deploy/pulumi/Pulumi.<stack>.yaml`.  Slack and Pinecone are only necessary if they are configured for use.
 
-| Secret Name                                               | Schema                                  |
-|-----------------------------------------------------------|-----------------------------------------|
-| catmeme/cloud-platform/sandbox/arti/access-token/openai   | `{ "apiKey": "" }`                      |
-| catmeme/cloud-platform/sandbox/arti/access-token/pinecone | `{ "apiKey": "" }`                      |
-| catmeme/cloud-platform/sandbox/arti/access-token/slack    | `{ "apiKey": "", "signingSecret": "" }` |
-|                                                           |                                         |
+| Secret Name                                                | Schema                                  |
+|------------------------------------------------------------|-----------------------------------------|
+| /catmeme/cloud-platform/sandbox/arti/access-token/openai   | `{ "apiKey": "" }`                      |
+| /catmeme/cloud-platform/sandbox/arti/access-token/pinecone | `{ "apiKey": "" }`                      |
+| /catmeme/cloud-platform/sandbox/arti/access-token/slack    | `{ "apiKey": "", "signingSecret": "" }` |
+|                                                            |                                         |
 
 Ensure you have a matching AWS profile name to the one in the stack.  The Makefile assumes `<environment>-deployment` 
 

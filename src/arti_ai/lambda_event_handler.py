@@ -1,8 +1,12 @@
 """Lambda function to handle S3 event."""
 
 import json
+import logging
 
 from arti_ai.app import load_data
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 
 def handler(event, _context):
@@ -15,7 +19,8 @@ def handler(event, _context):
     Returns:
         dict: The response data.
     """
-    print("Received event: " + json.dumps(event))
+    logger.info("Starting lambda application")
+    logger.debug(event)
 
     load_data()
 

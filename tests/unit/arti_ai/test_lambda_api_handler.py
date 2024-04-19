@@ -33,8 +33,8 @@ class TestLambdaApiHandler(unittest.TestCase):
         self.assertEqual(response["statusCode"], 200)
         self.assertIn("OK", json.loads(response["body"])["data"]["text"])
 
-    @patch("arti_ai.lambda_api_handler.app.logger.info")
-    @patch("arti_ai.lambda_api_handler.app.logger.debug")
+    @patch("arti_ai.lambda_api_handler.logger.info")
+    @patch("arti_ai.lambda_api_handler.logger.debug")
     def test_url_verification(self, mock_debug, mock_info):
         """Test handling of a URL verification event."""
         # pylint: disable=import-outside-toplevel

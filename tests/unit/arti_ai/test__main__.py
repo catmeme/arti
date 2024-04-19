@@ -2,6 +2,7 @@
 
 import argparse
 import io
+import json
 import sys
 import unittest
 from unittest.mock import patch
@@ -41,7 +42,24 @@ class TestCLIEntrypoint(unittest.TestCase):
 
         main()
 
-        mock_handle_ask.assert_called_once_with(test_question)
+        mock_handle_ask.assert_called_once_with(question=test_question)
+
+    @patch("arti_ai.app.list_data_sources")
+    @patch("argparse.ArgumentParser.parse_args")
+    def test_main_list_command(self, mock_parse_args, mock_list_data_sources):
+        """Test the main function with the 'list' command."""
+        mock_parse_args.return_value = argparse.Namespace(command="list")
+        mock_list_data_sources.return_value = json.dumps(
+            [
+                {"data_type": "text", "data_value": "assets", "metadata": None},
+            ]
+        )
+
+        main()
+
+        output = self.parser_output.getvalue()
+        output_data = json.loads(output)
+        self.assertTrue(any(item["data_value"] == "assets" for item in output_data))
 
     @patch("arti_ai.__main__.load_data")
     @patch("argparse.ArgumentParser.parse_args")

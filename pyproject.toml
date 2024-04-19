@@ -40,7 +40,7 @@ omit = ["tests/*"]
 [tool.mypy]
 check_untyped_defs = true
 disallow_any_explicit = true
-exclude = '^(archived|bin|dist|venv)/'
+exclude = '^(archived|bin|deploy|dist|venv)/'
 pretty = true
 warn_return_any = true
 warn_unused_configs = true

@@ -1,8 +1,9 @@
 """CLI entrypoint to arti."""
 
 import argparse
+import json
 
-from arti_ai.app import ask_ai, load_data, reset_data
+from arti_ai.app import ask_ai, list_data_sources, load_data, reset_data
 
 
 def handle_ask(question):
@@ -18,6 +19,8 @@ def main():
     parser_ask = subparsers.add_parser("ask", help="Ask a question")
     parser_ask.add_argument("question", type=str, help="The question you want to ask")
 
+    subparsers.add_parser("list", help="List data sources")
+
     subparsers.add_parser("load", help="Load data from data sources")
 
     subparsers.add_parser("reset", help="Reset data in vector database")
@@ -25,7 +28,9 @@ def main():
     args = parser.parse_args()
 
     if args.command == "ask":
-        handle_ask(args.question)
+        handle_ask(question=args.question)
+    elif args.command == "list":
+        print(json.dumps(list_data_sources()))
     elif args.command == "load":
         load_data()
     elif args.command == "reset":

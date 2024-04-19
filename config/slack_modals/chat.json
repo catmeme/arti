@@ -1,0 +1,170 @@
+{
+  "type": "modal",
+  "callback_id": "smarti_modal",
+  "title": {
+    "type": "plain_text",
+    "text": "Smarti Configuration"
+  },
+  "submit": {
+    "type": "plain_text",
+    "text": "Submit"
+  },
+  "blocks": [
+    {
+      "type": "input",
+      "block_id": "question",
+      "element": {
+        "type": "plain_text_input",
+        "action_id": "input",
+        "multiline": true
+      },
+      "label": {
+        "type": "plain_text",
+        "text": "Question"
+      }
+    },
+    {
+      "type": "input",
+      "block_id": "model",
+      "element": {
+        "type": "static_select",
+        "action_id": "input",
+        "placeholder": {
+          "type": "plain_text",
+          "text": "Select a model"
+        },
+        "options": [
+          {
+            "text": {
+              "type": "plain_text",
+              "text": "gpt-3.5-turbo"
+            },
+            "value": "gpt-3.5-turbo"
+          },
+          {
+            "text": {
+              "type": "plain_text",
+              "text": "gpt-4"
+            },
+            "value": "gpt-4"
+          },
+          {
+            "text": {
+              "type": "plain_text",
+              "text": "gpt-3"
+            },
+            "value": "gpt-3"
+          }
+        ],
+        "initial_option": {
+          "text": {
+            "type": "plain_text",
+            "text": "gpt-3.5-turbo"
+          },
+          "value": "gpt-3.5-turbo"
+        }
+      },
+      "label": {
+        "type": "plain_text",
+        "text": "Model"
+      }
+    },
+    {
+      "type": "input",
+      "block_id": "temperature",
+      "element": {
+        "type": "number_input",
+        "action_id": "input",
+        "is_decimal_allowed": true,
+        "initial_value": "0.5",
+        "min_value": "0",
+        "max_value": "1"
+      },
+      "label": {
+        "type": "plain_text",
+        "text": "Temperature"
+      }
+    },
+    {
+      "type": "input",
+      "block_id": "max_tokens",
+      "element": {
+        "type": "number_input",
+        "action_id": "input",
+        "initial_value": "1000",
+        "min_value": "1",
+        "is_decimal_allowed": false
+      },
+      "label": {
+        "type": "plain_text",
+        "text": "Max Tokens"
+      }
+    },
+    {
+      "type": "input",
+      "block_id": "top_p",
+      "element": {
+        "type": "number_input",
+        "action_id": "input",
+        "initial_value": "1.0",
+        "min_value": "0",
+        "max_value": "1",
+        "is_decimal_allowed": true
+      },
+      "label": {
+        "type": "plain_text",
+        "text": "Top P"
+      }
+    },
+    {
+      "type": "input",
+      "block_id": "prompt",
+      "element": {
+        "type": "plain_text_input",
+        "action_id": "input",
+        "multiline": true,
+        "initial_value": "Use the following pieces of context to answer the query at the end.\nIf you don't know the answer, just say that you don't know, don't try to make up an answer.\n\n$context\n\nQuery: $query\n\nHelpful Answer:"
+      },
+      "label": {
+        "type": "plain_text",
+        "text": "Prompt"
+      }
+    },
+    {
+      "type": "input",
+      "block_id": "system_prompt",
+      "element": {
+        "type": "plain_text_input",
+        "action_id": "input",
+        "multiline": true,
+        "initial_value": "Act as William Shakespeare. Answer the following questions in the style of William Shakespeare."
+      },
+      "label": {
+        "type": "plain_text",
+        "text": "System Prompt"
+      }
+    },
+    {
+      "type": "input",
+      "optional": true,
+      "block_id": "citations",
+      "element": {
+        "type": "checkboxes",
+        "action_id": "input",
+        "options": [
+          {
+            "text": {
+              "type": "plain_text",
+              "text": "Include Citations"
+            },
+            "value": "true"
+          }
+        ]
+      },
+      "label": {
+        "type": "plain_text",
+        "text": "Citations"
+      }
+    }
+  ]
+}

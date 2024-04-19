@@ -2,7 +2,8 @@
 
 import importlib
 import unittest
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch, MagicMock
+from embedchain.config import BaseLlmConfig  # type: ignore
 
 
 class TestArtiApp(unittest.TestCase):
@@ -11,12 +12,16 @@ class TestArtiApp(unittest.TestCase):
     @patch("builtins.print")
     @patch("embedchain.App.from_config")
     @patch("embedchain.loaders.directory_loader.DirectoryLoader")
-    def test_ask_ai(self, _mock_directory_loader, mock_from_config, mock_print):
+    @patch("embedchain.config.BaseLlmConfig")
+    def test_ask_ai(self, mock_base_llm_config, _mock_directory_loader, mock_from_config, _mock_print):
         """Test the ask_ai function."""
         # pylint: disable=import-outside-toplevel
         from arti_ai.app import ask_ai
 
         # pylint: enable=import-outside-toplevel
+
+        mock_config_instance = MagicMock(spec=BaseLlmConfig)
+        mock_base_llm_config.return_value = mock_config_instance
 
         mock_app_instance = MagicMock()
         mock_app_instance.query.return_value = "Mocked response"
@@ -25,10 +30,11 @@ class TestArtiApp(unittest.TestCase):
         question = "What is the meaning of life?"
         expected_response = "Mocked response"
 
-        response = ask_ai(question)
+        response = ask_ai(question=question)
 
-        mock_print.assert_called_with(f"Processing question: {question}")
-        mock_app_instance.query.assert_called_with(question)
+        mock_app_instance.query.assert_called_once_with(
+            input_query=question, config=mock_config_instance, dry_run=False, where=None, citations=False
+        )
 
         self.assertEqual(response, expected_response)
 
