@@ -38,7 +38,6 @@ class S3BucketLoader(BaseLoader):
 
         with tempfile.TemporaryDirectory() as tmp_dir:
             paginator = s3_client.get_paginator("list_objects_v2")
-            s3_key_to_local_path = {}
             for page in paginator.paginate(Bucket=bucket_name, Prefix=prefix):
                 for obj in page.get("Contents", []):
                     local_path = os.path.join(tmp_dir, obj["Key"])
@@ -46,30 +45,22 @@ class S3BucketLoader(BaseLoader):
                         continue  # skip directories
                     os.makedirs(os.path.dirname(local_path), exist_ok=True)
                     s3_client.download_file(bucket_name, obj["Key"], local_path)
-                    s3_key_to_local_path[obj["Key"]] = local_path
 
             loader = DirectoryLoader()
             loader_data = loader.load_data(tmp_dir)
 
-            data = []
-            for item in loader_data["data"]:
-                s3_key = next(
-                    (key for key, value in s3_key_to_local_path.items() if value.endswith(item["meta_data"]["url"])),
-                    None,
-                )
-                item_url = f"{self.s3_endpoint_url}/{bucket_name}/{s3_key}" if s3_key else ""
-
-                data.append(
-                    {
-                        "content": item["content"],
-                        "meta_data": {
-                            **item["meta_data"],
-                            "s3_bucket_name": bucket_name,
-                            "source": item_url,
-                            "url": item_url,
-                        },
-                    }
-                )
+            data = [
+                {
+                    "content": item["content"],
+                    "meta_data": {
+                        **item["meta_data"],
+                        "s3_bucket_name": bucket_name,
+                        "source": f"{self.s3_endpoint_url}/{bucket_name}/{obj['Key']}",  # pylint: disable=W0631,W1405
+                        "url": f"{self.s3_endpoint_url}/{bucket_name}/{obj['Key']}",  # pylint: disable=W0631,W1405
+                    },
+                }
+                for item in loader_data["data"]
+            ]
 
             data_content = [content["content"] for content in data]
             doc_id = hashlib.sha256((str(data_content) + url).encode()).hexdigest()

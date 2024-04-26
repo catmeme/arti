@@ -1,11 +1,13 @@
 encryptionsalt: v1:8F/vauKV0CI=:v1:cNX8KusaqrZPtadB:5bhYHxZDmn5DQwE4Ia6lQl2+GiWiWQ==
 config:
   arti:appConfigFile: config/deploy.config.yaml
-  arti:dataLoadEventRuleSchedule: rate(10 minute)
-  arti:dataLoadEventRuleState: ENABLED
+  arti:dataLoadEventRuleSchedule: rate(30 minutes)
+  arti:dataLoadEventRuleState: DISABLED
   arti:logLevel: DEBUG
   arti:openAiApiKeySecretName: /catmeme/cloud-platform/sandbox/arti/access-token/openai
   arti:pineconeApiKeySecretName: /catmeme/cloud-platform/sandbox/arti/access-token/pinecone
   arti:slackBotTokenSecretName: /catmeme/cloud-platform/sandbox/arti/access-token/slack
+  arti:sqsMessageTimeout: 7200
+  arti:sqsReservedConcurrentExecutions: 10
   aws:profile: sandbox-deployment
   aws:region: us-east-1

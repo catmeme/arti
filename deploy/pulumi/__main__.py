@@ -24,6 +24,8 @@ log_level = config.require("logLevel")
 openai_api_key_secret_name = config.require("openAiApiKeySecretName")
 pinecone_api_key_secret_name = config.require("pineconeApiKeySecretName")
 slack_bot_token_secret_name = config.require("slackBotTokenSecretName")
+sqs_message_timeout = config.require_int("sqsMessageTimeout")
+sqs_reserved_concurrent_executions = config.require_int("sqsReservedConcurrentExecutions")
 
 aws_caller_identity = aws.get_caller_identity()
 account_id = aws_caller_identity.account_id
@@ -309,6 +311,62 @@ aws.s3.BucketPublicAccessBlockArgs(
 )
 
 #
+# SQS
+#
+
+dead_letter_queue = aws.sqs.Queue(
+    f"{app_name}-dead-letter-queue",
+    message_retention_seconds=345600,  # 4 days
+    sqs_managed_sse_enabled=True,
+)
+
+sqs_queue = aws.sqs.Queue(
+    f"{app_name}-message-queue",
+    message_retention_seconds=sqs_message_timeout,
+    redrive_allow_policy=json.dumps({"redrivePermission": "denyAll"}),
+    redrive_policy=pulumi.Output.all(dead_letter_queue.arn).apply(
+        lambda args: json.dumps({"deadLetterTargetArn": args[0], "maxReceiveCount": 5})
+    ),
+    sqs_managed_sse_enabled=True,
+    visibility_timeout_seconds=sqs_message_timeout,
+)
+
+sqs_queue_policy_document = pulumi.Output.all(app_bucket.arn, sqs_queue.arn).apply(
+    lambda arns: json.dumps(
+        {
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Effect": "Allow",
+                    "Principal": {"Service": "s3.amazonaws.com"},
+                    "Action": ["sqs:SendMessage"],
+                    "Resource": arns[1],
+                    "Condition": {"ArnLike": {"aws:SourceArn": arns[0]}},
+                }
+            ],
+        }
+    )
+)
+
+aws.sqs.QueuePolicy(
+    f"{app_name}-sqs-queue-policy",
+    queue_url=sqs_queue.id,
+    policy=sqs_queue_policy_document,
+)
+
+# Send bucket notifications to the queue
+aws.s3.BucketNotification(
+    f"{app_name}-bucket-notification",
+    bucket=app_bucket.id,
+    queues=[
+        aws.s3.BucketNotificationQueueArgs(
+            queue_arn=sqs_queue.arn,
+            events=["s3:ObjectCreated:*", "s3:ObjectRemoved:*"],
+        )
+    ],
+)
+
+#
 # Application
 #
 
@@ -391,6 +449,21 @@ docker_image_lambda_event_handler = docker.Image(
     registry=registry_info,
 )
 
+docker_image_lambda_sqs_handler = docker.Image(
+    f"{app_name}-lambda-sqs-handler-image",
+    build=docker.DockerBuildArgs(
+        args={
+            "LAMBDA_HANDLER": "arti_ai.lambda_sqs_handler.handler",
+        },
+        context="../..",
+        dockerfile="../../Dockerfile",
+        platform="linux/amd64",
+    ),
+    image_name=pulumi.Output.concat(ecr_repository.repository_url, ":lambda-sqs-handler"),
+    skip_push=False,
+    registry=registry_info,
+)
+
 app_lambda_role = aws.iam.Role(
     f"{app_name}-lambda-role",
     assume_role_policy=json.dumps(
@@ -408,14 +481,18 @@ app_lambda_role = aws.iam.Role(
     managed_policy_arns=["arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"],
 )
 
-lambda_environment = pulumi.Output.all(
-    app_bucket.id,  # type: ignore
+lambda_environment = pulumi.Output.all(  # type: ignore
+    app_bucket.id,
+    sqs_queue.url,
 ).apply(
     lambda args: {
         "variables": {
             "APP_BUCKET_NAME": args[0],
             "APP_CONFIG_FILE": app_config_file,
+            "AWS_SQS_QUEUE_POLL_INTERVAL": 10,
+            "AWS_SQS_QUEUE_URL": args[1],
             "EC_TELEMETRY": "false",
+            "EMBEDCHAIN_CONFIG_DIR": "/tmp",
             "LOG_LEVEL": "DEBUG",
             "OPENAI_API_KEY_SECRET_NAME": openai_api_key_secret_name,
             "PINECONE_API_KEY_SECRET_NAME": pinecone_api_key_secret_name,
@@ -457,6 +534,16 @@ app_event_lambda = aws.lambda_.Function(
     **common_lambda_options,
 )
 
+# Create the Event Handler Lambda function
+app_sqs_lambda = aws.lambda_.Function(
+    resource_name=f"{app_name}-sqs-lambda",
+    environment=lambda_environment,
+    reserved_concurrent_executions=sqs_reserved_concurrent_executions,
+    image_uri=docker_image_lambda_sqs_handler.repo_digest,
+    opts=pulumi.ResourceOptions(depends_on=[docker_image_lambda_sqs_handler]),
+    **common_lambda_options,
+)
+
 secrets_manager_policy = aws.iam.RolePolicy(
     f"{app_name}-secrets-manager-policy",
     role=app_lambda_role.name,
@@ -474,6 +561,44 @@ secrets_manager_policy = aws.iam.RolePolicy(
                             f"{args[0]}:{slack_bot_token_secret_name}-??????",
                         ],
                     }
+                ],
+            }
+        )
+    ),
+)
+
+sqs_policy = aws.iam.RolePolicy(
+    f"{app_name}-sqs-policy",
+    role=app_lambda_role.name,
+    policy=pulumi.Output.all(app_sqs_lambda.arn, sqs_queue.arn).apply(
+        lambda args: json.dumps(
+            {
+                "Version": "2012-10-17",
+                "Statement": [
+                    {
+                        "Sid": "LambdaInvokeFunction",
+                        "Effect": "Allow",
+                        "Action": [
+                            "lambda:InvokeFunction",
+                        ],
+                        "Resource": [
+                            args[0],
+                        ],
+                    },
+                    {
+                        "Sid": "SQSManageQueues",
+                        "Effect": "Allow",
+                        "Action": [
+                            "sqs:ReceiveMessage",
+                            "sqs:SendMessage",
+                            "sqs:DeleteMessage",
+                            "sqs:GetQueueAttributes",
+                            "sqs:GetQueueUrl",
+                        ],
+                        "Resource": [
+                            args[1],
+                        ],
+                    },
                 ],
             }
         )
@@ -552,6 +677,14 @@ event_rule_target_permission = aws.lambda_.Permission(
     function=app_event_lambda.name,
     principal="events.amazonaws.com",
     source_arn=event_rule_schedule.arn,
+)
+
+event_source_mapping = aws.lambda_.EventSourceMapping(
+    f"{app_name}-lambda-sqs-event-source-mapping",
+    event_source_arn=sqs_queue.arn,
+    function_name=app_sqs_lambda.name,
+    enabled=True,
+    batch_size=10,
 )
 
 #
@@ -703,7 +836,7 @@ app_log_group = pulumi.Output.all(app_api_lambda.name).apply(create_lambda_log_g
 #
 # Pinecone
 #
-#
+
 pinecone_index = pinecone.PineconeIndex(
     f"{app_name}-pinecone-index",
     name="main-index",
@@ -719,8 +852,6 @@ pinecone_index = pinecone.PineconeIndex(
     opts=pulumi.ResourceOptions(delete_before_replace=True),
 )
 
-# pulumi.export("output", {"value": arti_pinecone_index.host})
-
 #
 # Outputs
 #
@@ -732,5 +863,6 @@ pulumi.export("app_api_lambda_id", app_api_lambda.id)
 pulumi.export("docker_image_lambda_api_repo_digest", docker_image_lambda_api_handler.repo_digest)
 pulumi.export("docker_image_lambda_event_repo_digest", docker_image_lambda_event_handler.repo_digest)
 pulumi.export("invoke_url", deployment.invoke_url)
+pulumi.export("pinecone_index_host", pinecone_index.host)
 pulumi.export("public_subnet_ids", public_subnet_ids)
 pulumi.export("private_subnet_ids", private_subnet_ids)

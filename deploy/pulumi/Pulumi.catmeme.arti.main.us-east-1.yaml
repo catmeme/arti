@@ -7,5 +7,7 @@ config:
   arti:openAiApiKeySecretName: /catmeme/cloud-platform/main/arti/access-token/openai
   arti:pineconeApiKeySecretName: /catmeme/cloud-platform/main/arti/access-token/pinecone
   arti:slackBotTokenSecretName: /catmeme/cloud-platform/main/arti/access-token/slack
+  arti:sqsMessageTimeout: 7200
+  arti:sqsReservedConcurrentExecutions: 10
   aws:profile: main-deployment
   aws:region: us-east-1

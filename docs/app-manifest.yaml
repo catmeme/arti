@@ -1,0 +1,58 @@
+display_information:
+  name: Arti
+  description: AI Experimentation
+  background_color: "#aaa99c"
+features:
+  app_home:
+    home_tab_enabled: true
+    messages_tab_enabled: true
+    messages_tab_read_only_enabled: false
+  bot_user:
+    display_name: Arti
+    always_online: true
+  slash_commands:
+    - command: /arti
+      url: https://<REPLACE_ME>.execute-api.us-east-1.amazonaws.com/stage
+      description: Ask Arti
+      should_escape: false
+    - command: /smarti
+      url: https://<REPLACE_ME>.execute-api.us-east-1.amazonaws.com/stage
+      description: Ask Arti Smartly
+      should_escape: false
+oauth_config:
+  scopes:
+    bot:
+      - app_mentions:read
+      - channels:history
+      - channels:read
+      - chat:write
+      - commands
+      - files:read
+      - groups:history
+      - im:history
+      - im:read
+      - im:write
+      - users:read
+      - users:read.email
+      - users:write
+      - reactions:read
+      - reactions:write
+      - remote_files:read
+settings:
+  event_subscriptions:
+    request_url: https://<REPLACE_ME>.execute-api.us-east-1.amazonaws.com/stage
+    bot_events:
+      - app_home_opened
+      - app_mention
+      - file_created
+      - file_shared
+      - message.channels
+      - message.groups
+      - message.im
+      - reaction_added
+  interactivity:
+    is_enabled: true
+    request_url: https://<REPLACE_ME>.execute-api.us-east-1.amazonaws.com/stage
+  org_deploy_enabled: false
+  socket_mode_enabled: false
+  token_rotation_enabled: false
