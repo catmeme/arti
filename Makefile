@@ -168,10 +168,8 @@ _check-env-%: _check-env-phony
 
 # Ensure Pinecone API key is in environment
 _pinecone-api-key:
-ifndef PINECONE_API_KEY
-PINECONE_API_KEY := $(shell grep -oP '(?<=PINECONE_API_KEY=).*' .env)
+PINECONE_API_KEY := $$(grep -o 'PINECONE_API_KEY=.*' .env | cut -d'=' -f2)
 export PINECONE_API_KEY
-endif
 .PHONY: _pinecone-api-key
 
 # Create Pulumi stack if it doesn't exist
